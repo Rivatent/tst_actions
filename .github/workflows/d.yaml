@@ -14,6 +14,7 @@ on:
  
       timeout:
         type: number
+        required: true
         default: 60
         description: 'Max time for deployment in seconds'
  
