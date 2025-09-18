@@ -1,4 +1,4 @@
-name: Simple Test 
+name: SecretTest
 
 on:
   workflow_dispatch:
