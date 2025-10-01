@@ -1,5 +1,5 @@
 name: pb_from_dev2
-on: pull_request
+on: [pull_request]
 jobs: 
   job_pr_dev2:
     runs-on: ubuntu-latest
