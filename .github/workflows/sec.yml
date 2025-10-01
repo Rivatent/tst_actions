@@ -1,24 +1,10 @@
-name: SecretTest
-
+name: Push from main branch
 on:
-  workflow_dispatch:
-
+  push:
+  pull_request:
+  pull_request_target:
 jobs: 
-  example:
+  job1:
     runs-on: ubuntu-latest
-    
-    # Переменные окружения (env)
-    env:
-      APP_NAME: "my-app"  
-    
     steps:
-    - name: Show variables
-      env:
-        STEP_VAR: "hello"
-      run: |
-        echo "App: $APP_NAME"
-        echo "Step: $STEP_VAR"
-
-        echo "we ${{ vars.we }}"
-        echo "secret api_key ${{ vars.api_key22 }}"
-        echo "secret api_key ${{ secrets.api_key22 }}"
+      - run: echo "some txt"
