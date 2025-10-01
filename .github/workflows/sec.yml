@@ -1,7 +1,0 @@
-name: pb
-on: pull_request
-jobs: 
-  job_pr:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "some txt"
