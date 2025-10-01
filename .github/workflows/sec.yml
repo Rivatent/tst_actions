@@ -1,5 +1,5 @@
 name: pb
-on: pull_request_target
+on: pull_request
 jobs: 
   job_pr:
     runs-on: ubuntu-latest
