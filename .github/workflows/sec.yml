@@ -1,7 +1,7 @@
-name: pb
+name: prot_branch
 on: pull_request
 jobs: 
-  job_pr:
+  job_pb_pr:
     runs-on: ubuntu-latest
     steps:
       - run: echo "some txt"
