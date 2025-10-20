@@ -1,4 +1,4 @@
-name: someName
+name: someName222
 on:
   workflow_dispatch:
     inputs:
