@@ -1,4 +1,4 @@
-name: someName222
+
 name: toDel
 on:
   workflow_dispatch:
