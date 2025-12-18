@@ -6,7 +6,7 @@ on:
 jobs:
   Job1:
     name: Job 1
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-ne-latest
     steps:
       - name: sleep
         run: echo job 1 almost done
