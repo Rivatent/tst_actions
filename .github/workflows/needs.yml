@@ -12,7 +12,7 @@ jobs:
         run: echo job 1 almost done
 
   Job2:
-    needs: ${{ secrets.JOB }}
+    needs: job4
     name: Job 2
     runs-on: ubuntu-latest
     steps:
