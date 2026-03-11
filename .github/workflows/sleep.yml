@@ -1,0 +1,37 @@
+name: sleepWorkflow
+
+on:
+  workflow_dispatch:
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print message from job 1
+        run: |
+          echo "Hello from Job 1"
+          # sleep 60
+
+  job2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print message from job 2
+        run: |
+          echo "Hello from Job 2"
+          sleep 60
+
+  job3:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print message from job 3
+        run: |
+          echo "Hello from Job 3"
+          sleep 60
+
+  job4:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print message from job 4
+        run: |
+          echo "Hello from Job 4"
+          sleep 60
