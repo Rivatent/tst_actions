@@ -5,6 +5,7 @@ on:
 
 jobs:
   job1:
+    needs: job4
     runs-on: ubuntu-latest
     steps:
       - name: Print message from job 1
