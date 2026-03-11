@@ -1,38 +1,121 @@
-name: sleepWorkflow
-
+name: Test Job Rerun Dependencies
 on:
   workflow_dispatch:
+    inputs:
+      fail_job_a:
+        description: 'Fail job_a'
+        required: false
+        default: 'false'
+        type: boolean
+      fail_job_b:
+        description: 'Fail job_b'
+        required: false
+        default: 'false'
+        type: boolean
+      fail_job_c:
+        description: 'Fail job_c (target for rerun)'
+        required: false
+        default: 'false'
+        type: boolean
+  push:
+    branches: [main]
+
+env:
+  TEST_ID: ${{ github.run_id }}
 
 jobs:
-  job1:
-    needs: job4
+  # ─────────────────────────────────────────────────────
+  # UPSTREAM: Джоба A - независимая (родитель для C)
+  # ─────────────────────────────────────────────────────
+  job_a:
     runs-on: ubuntu-latest
     steps:
-      - name: Print message from job 1
+      - name: Echo Job A
         run: |
-          echo "Hello from Job 1"
-          # sleep 3
+          echo "🔵 Job A executed (UPSTREAM for C)"
+          echo "TEST_ID=${{ env.TEST_ID }}"
+          echo "ATTEMPT=${{ github.run_attempt }}"
+      
+      - name: Simulate failure (для тестов)
+        if: ${{ inputs.fail_job_a == true }}
+        run: exit 1
+      
+      # - name: Create artifact A
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: artifact-a-${{ github.run_attempt }}
+      #     path: /tmp/test-a.txt
+      #     retention-days: 1
 
-  job2:
+  # ─────────────────────────────────────────────────────
+  # UPSTREAM: Джоба B - независимая (родитель для C)
+  # ─────────────────────────────────────────────────────
+  job_b:
     runs-on: ubuntu-latest
     steps:
-      - name: Print message from job 2
+      - name: Echo Job B
         run: |
-          echo "Hello from Job 2"
-          sleep 5
+          echo "🟢 Job B executed (UPSTREAM for C)"
+          echo "TEST_ID=${{ env.TEST_ID }}"
+      
+      - name: Simulate failure (для тестов)
+        if: ${{ inputs.fail_job_b == true }}
+        run: exit 1
 
-  job3:
+  # ─────────────────────────────────────────────────────
+  # TARGET: Джоба C - зависит от A и B (перезапускаемая)
+  # ─────────────────────────────────────────────────────
+  job_c:
     runs-on: ubuntu-latest
+    needs: [job_a, job_b]
     steps:
-      - name: Print message from job 3
+      - name: Echo Job C
         run: |
-          echo "Hello from Job 3"
-          sleep 6
+          echo "🟡 Job C executed (TARGET for rerun)"
+          echo "TEST_ID=${{ env.TEST_ID }}"
+          echo "ATTEMPT=${{ github.run_attempt }}"
+          echo "Depends on: job_a, job_b"
+      
+      - name: Simulate failure (для тестов)
+        if: ${{ inputs.fail_job_c == true }}
+        run: exit 1
+      
+      # - name: Create artifact C
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: artifact-c-${{ github.run_attempt }}
+      #     path: /tmp/test-c.txt
+      #     retention-days: 1
 
-  job4:
+  # ─────────────────────────────────────────────────────
+  # DOWNSTREAM: Джоба D - зависит от C (авто-перезапуск)
+  # ─────────────────────────────────────────────────────
+  job_d:
+    runs-on: ubuntu-latest
+    needs: [job_c]
+    steps:
+      - name: Echo Job D
+        run: |
+          echo "🟣 Job D executed (DOWNSTREAM from C)"
+          echo "TEST_ID=${{ env.TEST_ID }}"
+          echo "ATTEMPT=${{ github.run_attempt }}"
+          echo "Will auto-rerun when C is re-run"
+      
+      # - name: Create artifact D
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: artifact-d-${{ github.run_attempt }}
+      #     path: /tmp/test-d.txt
+      #     retention-days: 1
+
+  # ─────────────────────────────────────────────────────
+  # INDEPENDENT: Джоба E - без зависимостей
+  # ─────────────────────────────────────────────────────
+  job_e:
     runs-on: ubuntu-latest
     steps:
-      - name: Print message from job 4
+      - name: Echo Job E
         run: |
-          echo "Hello from Job 4"
-          sleep 7
+          echo "⚪ Job E executed (INDEPENDENT)"
+          echo "TEST_ID=${{ env.TEST_ID }}"
+          echo "Should NOT be affected by C rerun"
