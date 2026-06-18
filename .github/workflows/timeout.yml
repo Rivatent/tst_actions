@@ -1,0 +1,15 @@
+name: Проверка timeout для job и steps cloud
+
+on:
+  workflow_dispatch:
+
+jobs:
+  timeout-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 1  # Устанавливаем timeout 1 минута для job
+    steps:
+      - name: Long running step
+        run: |
+          echo "Starting long running process"
+          sleep 120  # Засыпаем на 2 минуты (больше чем timeout)
+          echo "This should not be printed"
