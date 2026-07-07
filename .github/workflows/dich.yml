@@ -1,0 +1,39 @@
+#
+# This action recreate action for building stable images
+#
+name: "dich"
+on:
+  # schedule:
+  #   - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+env:
+  GH_TOKEN: ${{ github.token }}
+
+concurrency:
+  group: watchdog-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  gradle:
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+
+        # list scripts you want to watch and execute failed jobs x-times
+        script: ["maintenance-rewrite-kernel-configs"]
+
+    name: R
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: "Restart ${{ matrix.script }}.yml"
+        run: |
+
+          echo "dich"
