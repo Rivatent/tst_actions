@@ -1,0 +1,59 @@
+name: log lines test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate-cube-logs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run infinite ASCII cube
+        shell: bash
+        run: |
+          python3 -u -c "
+          import math, time, sys
+
+          # Вращающийся 3D-куб → 2D ASCII-проекция.
+          # Каждый кадр содержит ~9 строк (строка «очистки» + контур куба).
+          # Кадр печатается каждые ~10 мс → ~1000 строк/с → ~1.8 млн строк за 30 мин.
+
+          W, H = 40, 12
+          pts3d = [(-1,-1,-1),(1,-1,-1),(1,1,-1),(-1,1,-1),
+                   (-1,-1,1),(1,-1,1),(1,1,1),(-1,1,1)]
+          edges = [(0,1),(1,2),(2,3),(3,0),(4,5),(5,6),(6,7),(7,4),
+                   (0,4),(1,5),(2,6),(3,7)]
+
+          def project(p, angle):
+              x, y, z = p
+              # Вращение вокруг оси Y
+              cx = x * math.cos(angle) - z * math.sin(angle)
+              cz = x * math.sin(angle) + z * math.cos(angle)
+              # Вращение вокруг оси X
+              cy = y * math.cos(angle*0.7) - cz * math.sin(angle*0.7)
+              cz2 = y * math.sin(angle*0.7) + cz * math.cos(angle*0.7)
+              # Перспективная проекция
+              d = 4.0
+              f = d / (d + cz2)
+              sx = int(cx * f * 10 + W // 2)
+              sy = int(cy * f * 6 + H // 2)
+              return sx, sy
+
+          frame = 0
+          while True:
+              sys.stdout.write('\n')
+              angle = frame * 0.05
+              buf = [[' ']*W for _ in range(H)]
+              for a, b in edges:
+                  p0, p1 = project(pts3d[a], angle), project(pts3d[b], angle)
+                  steps = max(abs(p1[0]-p0[0]), abs(p1[1]-p0[1]), 1)
+                  for t in range(steps + 1):
+                      x = int(p0[0] + (p1[0]-p0[0]) * t / steps)
+                      y = int(p0[1] + (p1[1]-p0[1]) * t / steps)
+                      if 0 <= x < W and 0 <= y < H:
+                          buf[y][x] = '#'
+              for row in buf:
+                  print(''.join(row))
+              frame += 1
+              time.sleep(0.01)
+          "
